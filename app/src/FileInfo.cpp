@@ -50,7 +50,6 @@ void FileInfo::setGenre(const std::string& genre) {
 }
 
 void FileInfo::setCover(const std::string& imagePath) {
-    std::cout << "/* message */" << '\n';
     TagLib::MPEG::File audioFile(filePath.c_str());
     TagLib::ID3v2::AttachedPictureFrame *pic = new TagLib::ID3v2::AttachedPictureFrame();
     TagLib::ID3v2::Tag *tag = audioFile.ID3v2Tag(true);
