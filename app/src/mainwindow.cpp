@@ -1,4 +1,6 @@
 #include "mainwindow.h"
+#include "errordialog.h"
+#include "FileTable.h"
 #include "FileInfo.h"
 #include "ui_mainwindow.h"
 #include <iostream>
@@ -23,15 +25,9 @@ MainWindow::MainWindow(QString sPath, QWidget *parent)
     for (int i = 1; i < dirmodel->columnCount(); ++i)
         ui->treeView->hideColumn(i);
 
-    filemodel = new QFileSystemModel(this);
-    filemodel->setRootPath(sPath);
-    filemodel->setFilter(QDir::NoDotAndDotDot | QDir::Files);
-    filemodel->setNameFilters(QStringList() << "*.mp3" << "*.flac" << "*.waw" << "*.ogg"); // "^(?:.*\/)?((.+)(\.mp3|\.flac|\.waw|\.ogg))$"
-    filemodel->setNameFilterDisables(false);
-    ui->listView->setModel(filemodel);
-    ui->listView->setRootIndex(filemodel->setRootPath(sPath));
-    ui->listView->setSelectionMode(QAbstractItemView::ExtendedSelection);
-
+    FileTable *tablemodel = new FileTable(sPath);
+    ui->tableView->setModel(tablemodel);
+    ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 }
 
 MainWindow::~MainWindow() {
@@ -41,38 +37,40 @@ MainWindow::~MainWindow() {
 
 void MainWindow::on_treeView_clicked(const QModelIndex &index) {
     QString sPath = dirmodel->fileInfo(index).absoluteFilePath();
-    ui->listView->setRootIndex(filemodel->setRootPath(sPath));
+    // ui->listView->setRootIndex(filemodel->setRootPath(sPath));
 
+    FileTable *tablemodel = new FileTable(sPath);
+    ui->tableView->setModel(tablemodel);
 }
 
 void MainWindow::updateTags(FileInfo file) {
-    file.setArtist(ui->lineEdit_1->text().toStdString());
+    file.setArtist(ui->lineEdit_1->text());
 }
 
-void MainWindow::on_listView_clicked(const QModelIndex &index) {
-    std::string filePath = filemodel->fileInfo(index).absoluteFilePath().toStdString();
-    QFile::Permissions perm = filemodel->permissions(index);
+void MainWindow::on_tableView_clicked(const QModelIndex &index) {
+    // std::string filePath = filemodel->fileInfo(index).absoluteFilePath().toStdString();
+    // QFile::Permissions perm = filemodel->permissions(index);
 
-    // QDir d = filemodel->fileInfo(index).absoluteDir();
-    //
-    // QFileInfoList sl = d.entryInfoList(QStringList() << "*.mp3" << "*.flac" << "*.waw" << "*.ogg");
-    // // std::cout << "model:" << '\n';
-    // for (const auto& it : sl) {
-    //     files.insert(std::pair<std::string, FileInfo>(,100));
-    //     std::cout << it.toStdString() << std::endl;
+//     // QDir d = filemodel->fileInfo(index).absoluteDir();
+//     //
+//     // QFileInfoList sl = d.entryInfoList(QStringList() << "*.mp3" << "*.flac" << "*.waw" << "*.ogg");
+//     // // std::cout << "model:" << '\n';
+//     // for (const auto& it : sl) {
+//     //     files.insert(std::pair<std::string, FileInfo>(,100));
+//     //     std::cout << it.toStdString() << std::endl;
+//     // }
+//
+    // if (perm & QFileDevice::ReadOwner) {
+
+        // FileInfo file(filemodel->fileInfo(index).absoluteFilePath());
+        // file.setCover("/Users/huanghe/Desktop/data2/download.jpeg");
+        // ui->lineEdit_1->setText(file.getArtist());
+        // ui->lineEdit_2->setText(file.getTitle());
+        // ui->lineEdit_3->setText(file.getAlbum());
+        // ui->lineEdit_4->setText(file.getGenre());
+        // ui->lineEdit_5->setText(file.getFilePath());
+    // } else {
+        ErrorDialog ed(this);
+        ed.exec();
     // }
-
-    if (perm & QFileDevice::ReadOwner) {
-
-        FileInfo file(filePath);
-        file.setCover("/Users/huanghe/Desktop/data2/download.jpeg");
-        ui->lineEdit_1->setText(QString::fromStdString(file.getArtist()));
-        ui->lineEdit_2->setText(QString::fromStdString(file.getTitle()));
-        ui->lineEdit_3->setText(QString::fromStdString(file.getAlbum()));
-        ui->lineEdit_4->setText(QString::fromStdString(file.getGenre()));
-        ui->lineEdit_5->setText(QString::fromStdString(file.getFilePath()));
-    } else {
-        std::cout << "hasn't perm : ";
-        std::cout << "perm = " << perm << '\n';
-    }
 }

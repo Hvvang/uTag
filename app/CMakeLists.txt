@@ -23,17 +23,13 @@ include_directories(../3dparty/taglib/taglib/toolkit/)
 include_directories(../build/3dparty/taglib/)
 
 
-set(SOURCES main.cpp src/mainwindow.cpp src/fileInfo.cpp)
-set(HEADERS src/mainwindow.h)
-set(UI src/mainwindow.ui)
+set(SOURCES main.cpp src/mainwindow.cpp src/fileInfo.cpp src/errordialog.cpp src/FileTable.cpp)
+set(HEADERS src/mainwindow.h src/errordialog.h src/FileTable.h)
+set(UI src/mainwindow.ui src/errordialog.ui)
 
 add_executable(utag ${SOURCES} ${HEADERS} ${UI})
 
-add_subdirectory(src)
+#add_subdirectory(src)
 include_directories(./src)
 
 target_link_libraries(utag tag Qt5::Core Qt5::Widgets)
-
-#add_compile_options(
-#    -std=c++17
-#)

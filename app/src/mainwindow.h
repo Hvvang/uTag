@@ -16,8 +16,7 @@ namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
 
 
-class MainWindow : public QMainWindow
-{
+class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
@@ -27,7 +26,8 @@ public:
 private slots:
     void on_treeView_clicked(const QModelIndex &index);
 
-    void on_listView_clicked(const QModelIndex &index);
+    void on_tableView_clicked(const QModelIndex &index);
+    // void on_listView_clicked(const QModelIndex &index);
 
     void updateTags(FileInfo file);
 

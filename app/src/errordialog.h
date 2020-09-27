@@ -6,6 +6,11 @@
 #include <QtGui>
 #include <QVariant>
 
+QT_BEGIN_NAMESPACE
+namespace Ui { class ErrorDialog; }
+QT_END_NAMESPACE
+
+
 class ErrorDialog : public QDialog {
     Q_OBJECT
 
@@ -14,7 +19,7 @@ public:
     ~ErrorDialog();
 
 private:
-
+    Ui::ErrorDialog *ui;
 };
 
 #endif // ERRORDIALOG_H
