@@ -4,16 +4,20 @@
 #include "FileInfo.h"
 #include "ui_mainwindow.h"
 #include <iostream>
+
 #include <QPixmap>
+#include <QAction>
+#include <QMenuBar>
 
 MainWindow::MainWindow(QString sPath, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow) {
+    createMenus();
     ui->setupUi(this);
 
     QPixmap pix("/Users/huanghe/Desktop/uTag/default-album-artwork.png");
-    int w = ui->label_7->width();
-    int h = ui->label_7->height();
+    // // int w = ui->label_7->width();
+    // // int h = ui->label_7->height();
     ui->label_7->setPixmap(pix);
 
     dirmodel = new QFileSystemModel(this);
@@ -26,8 +30,9 @@ MainWindow::MainWindow(QString sPath, QWidget *parent)
         ui->treeView->hideColumn(i);
 
     FileTable *tablemodel = new FileTable(sPath);
-    ui->tableView->setModel(tablemodel);
-    ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    auto proxyModel = new QSortFilterProxyModel(this);
+    proxyModel->setSourceModel(tablemodel);
+    ui->tableView->setModel(proxyModel);
 }
 
 MainWindow::~MainWindow() {
@@ -40,37 +45,67 @@ void MainWindow::on_treeView_clicked(const QModelIndex &index) {
     // ui->listView->setRootIndex(filemodel->setRootPath(sPath));
 
     FileTable *tablemodel = new FileTable(sPath);
-    ui->tableView->setModel(tablemodel);
+    auto proxyModel = new QSortFilterProxyModel(this);
+    proxyModel->setSourceModel(tablemodel);
+    ui->tableView->setModel(proxyModel);
 }
 
 void MainWindow::updateTags(FileInfo file) {
-    file.setArtist(ui->lineEdit_1->text());
+    // file.setArtist(ui->lineEdit_1->text());
 }
 
 void MainWindow::on_tableView_clicked(const QModelIndex &index) {
-    // std::string filePath = filemodel->fileInfo(index).absoluteFilePath().toStdString();
-    // QFile::Permissions perm = filemodel->permissions(index);
+    QModelIndexList selection = ui->tableView->selectionModel()->selectedRows();
 
-//     // QDir d = filemodel->fileInfo(index).absoluteDir();
-//     //
-//     // QFileInfoList sl = d.entryInfoList(QStringList() << "*.mp3" << "*.flac" << "*.waw" << "*.ogg");
-//     // // std::cout << "model:" << '\n';
-//     // for (const auto& it : sl) {
-//     //     files.insert(std::pair<std::string, FileInfo>(,100));
-//     //     std::cout << it.toStdString() << std::endl;
-//     // }
-//
-    // if (perm & QFileDevice::ReadOwner) {
+    // Multiple rows can be selected
+    for(int i=0; i< selection.count(); i++) {
+        QModelIndex index = selection.at(i);
+        qDebug() << index.row();
+    }
+    QModelIndex path = ui->tableView->model()->index(index.row(), 4, QModelIndex());
 
-        // FileInfo file(filemodel->fileInfo(index).absoluteFilePath());
-        // file.setCover("/Users/huanghe/Desktop/data2/download.jpeg");
-        // ui->lineEdit_1->setText(file.getArtist());
-        // ui->lineEdit_2->setText(file.getTitle());
-        // ui->lineEdit_3->setText(file.getAlbum());
-        // ui->lineEdit_4->setText(file.getGenre());
-        // ui->lineEdit_5->setText(file.getFilePath());
-    // } else {
-        ErrorDialog ed(this);
-        ed.exec();
-    // }
+    QString sPath = ui->tableView->model()->data(path).toString();
+    // qDebug() << ui->tableView->model()->data(path).toString();
+    FileInfo file((FileInfo(sPath)));
+    QPixmap pix = file.getCover();
+    ui->label_7->setPixmap(pix.scaled(ui->label_7->width(), ui->label_7->height(), Qt::KeepAspectRatio));
+    file.setCover("/Users/huanghe/Desktop/uTag/cover.jpeg");
+}
+
+void MainWindow::createMenus() {
+    QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
+
+    QAction *openAct = new QAction(tr("&Open..."), this);
+    fileMenu->addAction(openAct);
+    // connect(openAct, &QAction::triggered, this, &MainWindow::openFile);
+
+    QAction *saveAct = new QAction(tr("&Save"), this);
+    fileMenu->addAction(saveAct);
+    // connect(saveAct, &QAction::triggered, this, &MainWindow::saveFile);
+
+    QMenu *editMenu = menuBar()->addMenu(tr("&Edit"));
+
+    QAction *undoAct = new QAction(tr("&Undo"), this);
+    editMenu->addAction(undoAct);
+    // connect(undoAct, &QAction::triggered, this, &MainWindow::undoFile);
+
+    QAction *redoAct = new QAction(tr("&Redo"), this);
+    editMenu->addAction(redoAct);
+    // connect(redoAct, &QAction::triggered, this, &MainWindow::redoFile);
+
+    QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
+
+    QAction *aboutAct = new QAction(tr("&About"), this);
+    helpMenu->addAction(aboutAct);
+    // connect(aboutAct, &QAction::triggered, this, &MainWindow::aboutFile);
+
+    QAction *termsAct = new QAction(tr("&Terms of use"), this);
+    helpMenu->addAction(termsAct);
+    // connect(termsAct, &QAction::triggered, this, &MainWindow::termsFile);
+
+    helpMenu->addSeparator();
+
+    QAction *guideAct = new QAction(tr("&Guide"), this);
+    helpMenu->addAction(guideAct);
+    // connect(guideAct, &QAction::triggered, this, &MainWindow::guideFile);
 }

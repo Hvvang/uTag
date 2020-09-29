@@ -24,9 +24,16 @@ include_directories(../build/3dparty/taglib/)
 
 
 set(SOURCES main.cpp src/mainwindow.cpp src/fileInfo.cpp src/errordialog.cpp src/FileTable.cpp)
-set(HEADERS src/mainwindow.h src/errordialog.h src/FileTable.h)
+set(HEADERS src/mainwindow.h src/errordialog.h src/FileTable.h src/ImageFile.h)
 set(UI src/mainwindow.ui src/errordialog.ui)
 
+
+#set(MACOSX_BUNDLE_ICON_FILE tag.png)
+#set(APP_ICON_MACOSX ${CMAKE_CURRENT_SOURCE_DIR}/tag.png)
+#set_source_files_properties(${APP_ICON_MACOSX} PROPERTIES
+#       MACOSX_PACKAGE_LOCATION "Resources")
+
+#add_executable(utag MACOSX_BUNDLE ${SOURCES} ${HEADERS} ${UI} ${APP_ICON_MACOSX})
 add_executable(utag ${SOURCES} ${HEADERS} ${UI})
 
 #add_subdirectory(src)

@@ -11,6 +11,9 @@
 #include <id3v2tag.h>
 #include <QString>
 
+#include <QPixmap>
+
+
 /* FileInfo.h */
 class FileInfo {
 
@@ -24,12 +27,13 @@ public:
     QString getAlbum() const;
     QString getGenre() const;
     QString getFilePath() const;
+    QPixmap getCover() const;
 
     void setArtist(const QString& artist);
     void setTitle(const QString& title);
     void setAlbum(const QString& album);
     void setGenre(const QString& genre);
-    // void setCover(const QString& imagePath);
+    void setCover(const QString& imagePath);
 
 private:
     TagLib::FileRef file;

@@ -29,6 +29,8 @@ private slots:
     void on_tableView_clicked(const QModelIndex &index);
     // void on_listView_clicked(const QModelIndex &index);
 
+    void createMenus();
+
     void updateTags(FileInfo file);
 
 private:

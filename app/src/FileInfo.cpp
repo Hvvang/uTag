@@ -1,4 +1,5 @@
 #include "FileInfo.h"
+#include "ImageFile.h"
 
 FileInfo::FileInfo(const QString& path) :
     filePath(path) {
@@ -28,9 +29,22 @@ QString FileInfo::getFilePath() const {
     return filePath;
 }
 
-// QString FileInfo::getCover() const {
-//     return filePath;
-// }
+QPixmap FileInfo::getCover() const {
+    TagLib::MPEG::File audioFile(filePath.toStdString().c_str());
+    TagLib::ID3v2::Tag *tag = audioFile.ID3v2Tag();
+    TagLib::ID3v2::FrameList frames = tag->frameList("APIC");
+
+    if (frames.isEmpty()) {
+        QPixmap pix("/Users/huanghe/Desktop/uTag/default-album-artwork.png");
+        return pix;
+    }
+    TagLib::ID3v2::AttachedPictureFrame *coverImage =
+        static_cast<TagLib::ID3v2::AttachedPictureFrame *>(frames.front());
+    QImage cover;
+    cover.loadFromData((const uchar *)coverImage->picture().data(), coverImage->picture().size());
+    QPixmap pix = QPixmap::fromImage(cover);
+    return pix;
+}
 
 void FileInfo::setArtist(const QString& artist) {
     file.tag()->setArtist(artist.toStdString());
@@ -52,12 +66,21 @@ void FileInfo::setGenre(const QString& genre) {
     file.save();
 }
 
-// void FileInfo::setCover(const QString& imagePath) {
-//     TagLib::MPEG::File audioFile(filePath.c_str());
-//     TagLib::ID3v2::AttachedPictureFrame *pic = new TagLib::ID3v2::AttachedPictureFrame();
-//     TagLib::ID3v2::Tag *tag = audioFile.ID3v2Tag(true);
-//     pic->setMimeType("image/jpeg");
-//     pic->setData(TagLib::ByteVector(imagePath.c_str()));
-//     tag->addFrame(pic);
-//     audioFile.save();
-// }
+void FileInfo::setCover(const QString& imagePath) {
+    TagLib::MPEG::File audioFile(filePath.toStdString().c_str());
+    TagLib::ID3v2::Tag *tag = audioFile.ID3v2Tag();
+    TagLib::ID3v2::FrameList frames = tag->frameList("APIC");
+
+    TagLib::ID3v2::AttachedPictureFrame *frame = 0;
+    if (frames.isEmpty()) {
+        frame = new TagLib::ID3v2::AttachedPictureFrame;
+        tag->addFrame(frame);
+    } else {
+        frame = dynamic_cast<TagLib::ID3v2::AttachedPictureFrame *>(frames.front());
+    }
+    ImageFile image(imagePath.toStdString().c_str());
+    TagLib::ByteVector imageData = image.data();
+    frame->setMimeType("image/jpeg");
+    frame->setPicture(imageData);
+    audioFile.save();
+}
