@@ -27,14 +27,15 @@ public:
     QString getAlbum() const;
     QString getGenre() const;
     QString getFilePath() const;
+    QString getLyrics() const;
     QPixmap getCover() const;
 
     void setArtist(const QString& artist);
     void setTitle(const QString& title);
     void setAlbum(const QString& album);
     void setGenre(const QString& genre);
+    void setLyrics(const QString& lyrics);
     void setCover(const QString& imagePath);
-
 private:
     TagLib::FileRef file;
     const QString filePath;

@@ -1,9 +1,7 @@
+#include "ui_mainwindow.h"
 #include "mainwindow.h"
 #include "errordialog.h"
 #include "FileTable.h"
-#include "FileInfo.h"
-#include "ui_mainwindow.h"
-#include <iostream>
 
 MainWindow::MainWindow(QString sPath, QWidget *parent)
     : QMainWindow(parent)

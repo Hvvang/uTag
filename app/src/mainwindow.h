@@ -26,21 +26,18 @@ public:
     MainWindow(QString sPath = "/", QWidget *parent = nullptr);
     ~MainWindow();
 
-private slots:
-    void on_treeView_clicked(const QModelIndex &index);
-
-    void on_tableView_clicked(const QModelIndex &index);
-    // void on_listView_clicked(const QModelIndex &index);
-
-    void createMenus();
-
+private:
     void ui_fileBrowserUpdate(QString sPath);
     void ui_tagsTableUpdate(QString sPath);
     void ui_coverImageUpdate(QPixmap pix);
+    void createMenus();
 
+
+private slots:
+    void on_treeView_clicked(const QModelIndex &index);
+    void on_tableView_clicked(const QModelIndex &index);
 
 private:
-    FileInfo *f;
     Ui::MainWindow *ui;
     QFileSystemModel *dirmodel;
     QSortFilterProxyModel *proxyModel;

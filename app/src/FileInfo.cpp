@@ -25,6 +25,10 @@ QString FileInfo::getGenre() const {
     return file.tag()->genre().toCString();
 }
 
+QString FileInfo::getLyrics() const {
+    return file.tag()->comment().toCString();
+}
+
 QString FileInfo::getFilePath() const {
     return filePath;
 }
@@ -63,6 +67,11 @@ void FileInfo::setAlbum(const QString& album) {
 
 void FileInfo::setGenre(const QString& genre) {
     file.tag()->setGenre(genre.toStdString());
+    file.save();
+}
+
+void FileInfo::setLyrics(const QString& lyrics) {
+    file.tag()->setComment(lyrics.toStdString());
     file.save();
 }
 
