@@ -5,11 +5,14 @@
 #include <QtCore>
 #include <QtGui>
 #include <QFileSystemModel>
-#include <QStringList>
-#include <QVariant>
 
 #include "FileInfo.h"
-#include <map>
+#include <QPixmap>
+#include <QAction>
+#include <QMenuBar>
+
+#include <iostream>
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -31,14 +34,16 @@ private slots:
 
     void createMenus();
 
-    void updateTags(FileInfo file);
+    void ui_fileBrowserUpdate(QString sPath);
+    void ui_tagsTableUpdate(QString sPath);
+    void ui_coverImageUpdate(QPixmap pix);
+
 
 private:
-    std::map<std::string, FileInfo> files;
     FileInfo *f;
     Ui::MainWindow *ui;
     QFileSystemModel *dirmodel;
-    QFileSystemModel *filemodel;
+    QSortFilterProxyModel *proxyModel;
 
 };
 #endif // MAINWINDOW_H

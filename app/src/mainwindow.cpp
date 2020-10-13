@@ -5,71 +5,69 @@
 #include "ui_mainwindow.h"
 #include <iostream>
 
-#include <QPixmap>
-#include <QAction>
-#include <QMenuBar>
-
 MainWindow::MainWindow(QString sPath, QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow) {
+    , ui(new Ui::MainWindow)
+    , dirmodel(new QFileSystemModel)
+    , proxyModel(new QSortFilterProxyModel) {
     createMenus();
     ui->setupUi(this);
-
     QPixmap pix("/Users/huanghe/Desktop/uTag/default-album-artwork.png");
-    // // int w = ui->label_7->width();
-    // // int h = ui->label_7->height();
-    ui->label_7->setPixmap(pix);
 
-    dirmodel = new QFileSystemModel(this);
-    dirmodel->setRootPath(sPath);
-    dirmodel->setFilter(QDir::NoDotAndDotDot | QDir::AllDirs);
-
-    ui->treeView->setModel(dirmodel);
-    ui->treeView->setRootIndex(dirmodel->index(sPath));
-    for (int i = 1; i < dirmodel->columnCount(); ++i)
-        ui->treeView->hideColumn(i);
-
-    FileTable *tablemodel = new FileTable(sPath);
-    auto proxyModel = new QSortFilterProxyModel(this);
-    proxyModel->setSourceModel(tablemodel);
-    ui->tableView->setModel(proxyModel);
+    ui_fileBrowserUpdate(sPath);
+    ui_tagsTableUpdate(sPath);
+    ui_coverImageUpdate(pix);
 }
 
 MainWindow::~MainWindow() {
     delete ui;
 }
 
-
 void MainWindow::on_treeView_clicked(const QModelIndex &index) {
     QString sPath = dirmodel->fileInfo(index).absoluteFilePath();
-    // ui->listView->setRootIndex(filemodel->setRootPath(sPath));
+    ui_tagsTableUpdate(sPath);
+}
 
+void MainWindow::on_tableView_clicked(const QModelIndex &index) {
+    // QModelIndexList selection = ui->tableView->selectionModel()->selectedRows();
+    //
+    // // Multiple rows can be selected
+    // for(int i=0; i< selection.count(); i++) {
+    //     QModelIndex index = selection.at(i);
+    //     qDebug() << index.row();
+    // }
+
+    QModelIndex fPath = ui->tableView->model()->index(index.row(), 4, QModelIndex());
+
+    QString sPath = ui->tableView->model()->data(fPath).toString();
+    FileInfo file((FileInfo(sPath)));
+    QPixmap pix = file.getCover();
+
+    ui_coverImageUpdate(pix);
+}
+
+void MainWindow::ui_fileBrowserUpdate(QString sPath) {
+    dirmodel->setRootPath(sPath);
+    dirmodel->setFilter(QDir::NoDotAndDotDot | QDir::AllDirs);
+    ui->treeView->setModel(dirmodel);
+    ui->treeView->setRootIndex(dirmodel->index(sPath));
+    for (int i = 1; i < dirmodel->columnCount(); ++i)
+        ui->treeView->hideColumn(i);
+}
+
+void MainWindow::ui_tagsTableUpdate(QString sPath) {
     FileTable *tablemodel = new FileTable(sPath);
-    auto proxyModel = new QSortFilterProxyModel(this);
     proxyModel->setSourceModel(tablemodel);
     ui->tableView->setModel(proxyModel);
 }
 
-void MainWindow::updateTags(FileInfo file) {
-    // file.setArtist(ui->lineEdit_1->text());
-}
+void MainWindow::ui_coverImageUpdate(QPixmap pix) {
+    QPalette palette;
+    palette.setBrush(ui->coverImage->backgroundRole(), QBrush(pix.scaled(ui->coverImage->width(), ui->coverImage->height(), Qt::KeepAspectRatio)));
 
-void MainWindow::on_tableView_clicked(const QModelIndex &index) {
-    QModelIndexList selection = ui->tableView->selectionModel()->selectedRows();
-
-    // Multiple rows can be selected
-    for(int i=0; i< selection.count(); i++) {
-        QModelIndex index = selection.at(i);
-        qDebug() << index.row();
-    }
-    QModelIndex path = ui->tableView->model()->index(index.row(), 4, QModelIndex());
-
-    QString sPath = ui->tableView->model()->data(path).toString();
-    // qDebug() << ui->tableView->model()->data(path).toString();
-    FileInfo file((FileInfo(sPath)));
-    QPixmap pix = file.getCover();
-    ui->label_7->setPixmap(pix.scaled(ui->label_7->width(), ui->label_7->height(), Qt::KeepAspectRatio));
-    file.setCover("/Users/huanghe/Desktop/uTag/cover.jpeg");
+    ui->coverImage->setFlat(true);
+    ui->coverImage->setAutoFillBackground(true);
+    ui->coverImage->setPalette(palette);
 }
 
 void MainWindow::createMenus() {

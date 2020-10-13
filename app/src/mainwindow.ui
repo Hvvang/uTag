@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1125</width>
-    <height>454</height>
+    <width>1105</width>
+    <height>459</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -79,62 +79,75 @@
      <layout class="QGridLayout" name="gridLayout">
       <item row="3" column="1" alignment="Qt::AlignTop">
        <widget class="QLabel" name="label_6">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
          <string>Lyrics</string>
         </property>
        </widget>
       </item>
-      <item row="1" column="1" alignment="Qt::AlignBottom">
-       <widget class="QLabel" name="label">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="3" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-       <widget class="QLabel" name="label_7">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="pixmap">
-         <pixmap>../../default-album-artwork.png</pixmap>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="3" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-       <widget class="QPlainTextEdit" name="plainTextEdit">
+      <item row="3" column="3" alignment="Qt::AlignLeft|Qt::AlignTop">
+       <widget class="QPlainTextEdit" name="Lyrics">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
           <horstretch>0</horstretch>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-       </widget>
-      </item>
-      <item row="3" column="4">
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
+        <property name="minimumSize">
          <size>
-          <width>40</width>
-          <height>20</height>
+          <width>256</width>
+          <height>177</height>
          </size>
         </property>
-       </spacer>
+       </widget>
+      </item>
+      <item row="1" column="3" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+       <widget class="QPushButton" name="coverImage">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>225</width>
+          <height>225</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>225</width>
+          <height>225</height>
+         </size>
+        </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+        <property name="autoRepeat">
+         <bool>false</bool>
+        </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
+        <property name="default">
+         <bool>false</bool>
+        </property>
+        <property name="flat">
+         <bool>true</bool>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
@@ -150,11 +163,17 @@
    </property>
   </action>
   <action name="actionSave">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>&amp;Save</string>
    </property>
   </action>
   <action name="actionExit">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>&amp;Exit</string>
    </property>
@@ -168,6 +187,9 @@
    </property>
   </action>
   <action name="actionRedo">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>&amp;Redo</string>
    </property>
@@ -181,11 +203,17 @@
    </property>
   </action>
   <action name="actionTerms_of_use">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>&amp;Terms of use</string>
    </property>
   </action>
   <action name="actionGuide">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>&amp;Guide</string>
    </property>
