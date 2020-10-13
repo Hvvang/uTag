@@ -10,11 +10,11 @@ MainWindow::MainWindow(QString sPath, QWidget *parent)
     , proxyModel(new QSortFilterProxyModel) {
     createMenus();
     ui->setupUi(this);
-    // QPixmap pix("/Users/huanghe/Desktop/uTag/default-album-artwork.png");
+    QPixmap pix(defaultCoverImage);
 
     ui_fileBrowserUpdate(sPath);
     ui_tagsTableUpdate(sPath);
-    // ui_coverImageUpdate(pix);
+    ui_coverImageUpdate(pix);
 }
 
 MainWindow::~MainWindow() {

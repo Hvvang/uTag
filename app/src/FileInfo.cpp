@@ -39,7 +39,7 @@ QPixmap FileInfo::getCover() const {
     TagLib::ID3v2::FrameList frames = tag->frameList("APIC");
 
     if (frames.isEmpty()) {
-        QPixmap pix("./asserts/defaultCoverImage.png");
+        QPixmap pix(defaultCoverImage);
         return pix;
     }
     TagLib::ID3v2::AttachedPictureFrame *coverImage =

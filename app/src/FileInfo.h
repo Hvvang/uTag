@@ -13,6 +13,7 @@
 
 #include <QPixmap>
 
+#define defaultCoverImage "./app/src/asserts/defaultCoverImage.png"
 
 /* FileInfo.h */
 class FileInfo {
