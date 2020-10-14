@@ -30,6 +30,7 @@ private:
     void ui_tagsTableUpdate(QString sPath);
     void ui_coverImageUpdate(QPixmap pix);
     void createMenus();
+    void openFile();
 
 signals:
     void itemChanged(const QModelIndex &index);

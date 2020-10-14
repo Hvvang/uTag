@@ -2,6 +2,7 @@
 #include "mainwindow.h"
 #include "errordialog.h"
 #include "FileTable.h"
+#include <QFileDialog>
 
 MainWindow::MainWindow(QString sPath, QWidget *parent)
     : QMainWindow(parent)
@@ -79,7 +80,7 @@ void MainWindow::createMenus() {
 
     QAction *openAct = new QAction(tr("&Open..."), this);
     fileMenu->addAction(openAct);
-    // connect(openAct, &QAction::triggered, this, &MainWindow::openFile);
+    connect(openAct, &QAction::triggered, this, &MainWindow::openFile);
 
     QAction *saveAct = new QAction(tr("&Save"), this);
     fileMenu->addAction(saveAct);
@@ -110,4 +111,13 @@ void MainWindow::createMenus() {
     QAction *guideAct = new QAction(tr("&Guide"), this);
     helpMenu->addAction(guideAct);
     // connect(guideAct, &QAction::triggered, this, &MainWindow::guideFile);
+}
+
+void MainWindow::openFile() {
+    QString dirName = QFileDialog::getExistingDirectory(this, tr("Open Directory"), "~/Desktop",
+                                                    QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    QPixmap pix(defaultCoverImage);
+    ui_fileBrowserUpdate(dirName);
+    ui_tagsTableUpdate(dirName);
+    ui_coverImageUpdate(pix);
 }
