@@ -30,7 +30,7 @@ QVariant FileTable::data(const QModelIndex &index, int role) const {
     if (index.row() >= files.size() || index.row() < 0)
         return QVariant();
 
-    if (role == Qt::DisplayRole) {
+    if (role == Qt::DisplayRole || role == Qt::EditRole) {
         const auto &file = files.at(index.row());
 
         switch (index.column()) {
@@ -74,27 +74,37 @@ QVariant FileTable::headerData(int section, Qt::Orientation orientation, int rol
     return QVariant();
 }
 
-// bool FileTable::setData(const QModelIndex &index, const QVariant &value, int role)
-// {
-//     if (index.isValid() && role == Qt::EditRole) {
-//         const int row = index.row();
-//         auto file = files.value(row);
-//
-//         switch (index.column()) {
-//             case 0:
-//                 file.name = value.toString();
-//                 break;
-//             case 1:
-//                 file.address = value.toString();
-//                 break;
-//             default:
-//                 return false;
-//         }
-//         files.replace(row, file);
-//         emit dataChanged(index, index, {Qt::DisplayRole, Qt::EditRole});
-//
-//         return true;
-//     }
-//
-//     return false;
-// }
+ bool FileTable::setData(const QModelIndex &index, const QVariant &value, int role)
+ {
+     if (index.isValid() && role == Qt::EditRole) {
+         const int row = index.row();
+         auto file = files.value(row);
+
+         switch (index.column()) {
+             case 0:
+                 file.setArtist(value.toString());
+                 break;
+             case 1:
+                 file.setTitle(value.toString());
+                 break;
+             case 2:
+                 file.setAlbum(value.toString());
+                 break;
+             case 3:
+                 file.setGenre(value.toString());
+                 break;
+             default:
+                 return false;
+         }
+         emit dataChanged(index, index, {Qt::DisplayRole, Qt::EditRole});
+         return true;
+     }
+     return false;
+ }
+
+ Qt::ItemFlags FileTable::flags(const QModelIndex &index) const {
+     if (!index.isValid())
+         return Qt::ItemIsEnabled;
+
+     return QAbstractTableModel::flags(index) | Qt::ItemIsEditable;
+ }

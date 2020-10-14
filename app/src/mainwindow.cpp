@@ -8,10 +8,10 @@ MainWindow::MainWindow(QString sPath, QWidget *parent)
     , ui(new Ui::MainWindow)
     , dirmodel(new QFileSystemModel)
     , proxyModel(new QSortFilterProxyModel) {
-    createMenus();
     ui->setupUi(this);
     QPixmap pix(defaultCoverImage);
 
+    createMenus();
     ui_fileBrowserUpdate(sPath);
     ui_tagsTableUpdate(sPath);
     ui_coverImageUpdate(pix);
@@ -43,6 +43,12 @@ void MainWindow::on_tableView_clicked(const QModelIndex &index) {
 
     ui_coverImageUpdate(pix);
 }
+
+// void MainWindow::on_tableView_doubleClicked(const QModelIndex &index) {
+    // openPersistentEditor(index);
+    // qDebug() << index;
+    // std::cout << "1" << std::endl;
+// }
 
 void MainWindow::ui_fileBrowserUpdate(QString sPath) {
     dirmodel->setRootPath(sPath);

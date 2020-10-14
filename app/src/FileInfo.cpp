@@ -93,3 +93,13 @@ void FileInfo::setCover(const QString& imagePath) {
     frame->setPicture(imageData);
     audioFile.save();
 }
+
+//FileInfo &FileInfo::operator=(FileInfo copy_to) {
+//    setArtist(copy_to.getArtist());
+//    setTitle(copy_to.getTitle());
+//    setAlbum(copy_to.getAlbum());
+//    setGenre(copy_to.getGenre());
+//    // file.setCover(copy_to.getCover());
+//    // file.setLyrics(copy_to.setLyrics());
+
+//}

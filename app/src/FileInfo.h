@@ -21,6 +21,7 @@ class FileInfo {
 
 public:
     FileInfo(const QString& path);
+    FileInfo() = default;
     ~FileInfo() = default;
 
     QString getArtist() const;
