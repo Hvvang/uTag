@@ -105,5 +105,7 @@ bool FileTable::setData(const QModelIndex &index, const QVariant &value, int rol
 Qt::ItemFlags FileTable::flags(const QModelIndex &index) const {
     if (!index.isValid())
         return Qt::ItemIsEnabled;
+    if (index.column() == 4)
+        return QAbstractTableModel::flags(index);
     return QAbstractTableModel::flags(index) | Qt::ItemIsEditable;
 }
