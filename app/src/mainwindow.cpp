@@ -28,28 +28,13 @@ void MainWindow::on_treeView_clicked(const QModelIndex &index) {
 }
 
 void MainWindow::on_tableView_clicked(const QModelIndex &index) {
-    // QModelIndexList selection = ui->tableView->selectionModel()->selectedRows();
-    //
-    // // Multiple rows can be selected
-    // for(int i=0; i< selection.count(); i++) {
-    //     QModelIndex index = selection.at(i);
-    //     qDebug() << index.row();
-    // }
-
     QModelIndex fPath = ui->tableView->model()->index(index.row(), 4, QModelIndex());
-
     QString sPath = ui->tableView->model()->data(fPath).toString();
     FileInfo file((FileInfo(sPath)));
     QPixmap pix = file.getCover();
 
     ui_coverImageUpdate(pix);
 }
-
-// void MainWindow::on_tableView_doubleClicked(const QModelIndex &index) {
-    // openPersistentEditor(index);
-    // qDebug() << index;
-    // std::cout << "1" << std::endl;
-// }
 
 void MainWindow::ui_fileBrowserUpdate(QString sPath) {
     dirmodel->setRootPath(sPath);
@@ -68,6 +53,9 @@ void MainWindow::ui_tagsTableUpdate(QString sPath) {
 
 void MainWindow::ui_coverImageUpdate(QPixmap pix) {
     QPalette palette;
+    if (pix.isNull()) {
+       pix = QPixmap(defaultCoverImage);
+    }
     palette.setBrush(ui->coverImage->backgroundRole(), QBrush(pix.scaled(ui->coverImage->width(), ui->coverImage->height(), Qt::KeepAspectRatio)));
 
     ui->coverImage->setFlat(true);
@@ -115,9 +103,38 @@ void MainWindow::createMenus() {
 
 void MainWindow::openFile() {
     QString dirName = QFileDialog::getExistingDirectory(this, tr("Open Directory"), "~/Desktop",
-                                                    QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+                                                        QFileDialog::ShowDirsOnly |
+                                                        QFileDialog::DontResolveSymlinks);
     QPixmap pix(defaultCoverImage);
     ui_fileBrowserUpdate(dirName);
     ui_tagsTableUpdate(dirName);
     ui_coverImageUpdate(pix);
+}
+
+// Handler for mouse pressed on button that stores audio album cover image,
+// that allow user to change it
+// *using QFileDialog user get path to image file
+// *than change cover using method from FileInfo class
+// *than convert image to QPixmap and update ui.
+void MainWindow::on_coverImage_clicked() {
+    QModelIndexList selection = ui->tableView->selectionModel()->selectedRows();
+    if (selection.count()) {
+        QString imagePath = QFileDialog::getOpenFileName(this, tr("Open File"), "~/Desktop",
+                                                         tr("Images (*.png *.xpm *.jpg *.jpeg)"));
+
+        QPixmap pix;
+        // Multiple rows can be selected
+        for(int i = 0; i < selection.count() && !imagePath.isEmpty(); ++i) {
+            QModelIndex index = selection.at(i);
+            QModelIndex fPath = ui->tableView->model()->index(index.row(), 4, QModelIndex());
+            QString sPath = ui->tableView->model()->data(fPath).toString();
+            FileInfo file((FileInfo(sPath)));
+
+            file.setCover(imagePath);
+            if (!pix) {
+                pix = file.getCover();
+                ui_coverImageUpdate(pix);
+            }
+        }
+    }
 }

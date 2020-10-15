@@ -32,13 +32,10 @@ private:
     void createMenus();
     void openFile();
 
-signals:
-    void itemChanged(const QModelIndex &index);
-
 private slots:
     void on_treeView_clicked(const QModelIndex &index);
     void on_tableView_clicked(const QModelIndex &index);
-//    void on_tableView_doubleClicked(const QModelIndex &index);
+    void on_coverImage_clicked();
 
 private:
     Ui::MainWindow *ui;

@@ -23,6 +23,7 @@ int FileTable::rowCount(const QModelIndex &parent) const {
 int FileTable::columnCount(const QModelIndex &parent) const {
     return parent.isValid() ? 0 : 5;
 }
+
 QVariant FileTable::data(const QModelIndex &index, int role) const {
     if (!index.isValid())
         return QVariant();
@@ -74,8 +75,7 @@ QVariant FileTable::headerData(int section, Qt::Orientation orientation, int rol
     return QVariant();
 }
 
- bool FileTable::setData(const QModelIndex &index, const QVariant &value, int role)
- {
+bool FileTable::setData(const QModelIndex &index, const QVariant &value, int role) {
      if (index.isValid() && role == Qt::EditRole) {
          const int row = index.row();
          auto file = files.value(row);
@@ -102,9 +102,8 @@ QVariant FileTable::headerData(int section, Qt::Orientation orientation, int rol
      return false;
  }
 
- Qt::ItemFlags FileTable::flags(const QModelIndex &index) const {
-     if (!index.isValid())
-         return Qt::ItemIsEnabled;
-
-     return QAbstractTableModel::flags(index) | Qt::ItemIsEditable;
- }
+Qt::ItemFlags FileTable::flags(const QModelIndex &index) const {
+    if (!index.isValid())
+        return Qt::ItemIsEnabled;
+    return QAbstractTableModel::flags(index) | Qt::ItemIsEditable;
+}
