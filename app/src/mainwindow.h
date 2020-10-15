@@ -37,6 +37,8 @@ private slots:
     void on_tableView_clicked(const QModelIndex &index);
     void on_coverImage_clicked();
 
+    void on_Lyrics_textChanged();
+
 private:
     Ui::MainWindow *ui;
     QFileSystemModel *dirmodel;

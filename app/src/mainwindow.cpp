@@ -33,6 +33,7 @@ void MainWindow::on_tableView_clicked(const QModelIndex &index) {
     FileInfo file((FileInfo(sPath)));
     QPixmap pix = file.getCover();
 
+    ui->Lyrics->setPlainText(file.getLyrics());
     ui_coverImageUpdate(pix);
 }
 
@@ -137,4 +138,12 @@ void MainWindow::on_coverImage_clicked() {
             }
         }
     }
+}
+
+void MainWindow::on_Lyrics_textChanged() {
+    auto currRow = ui->tableView->currentIndex().row();
+    auto index = ui->tableView->model()->index(currRow, 4);
+    QString fPath = ui->tableView->model()->data(index).toString();
+    FileInfo file((FileInfo(fPath)));
+    file.setLyrics(ui->Lyrics->toPlainText());
 }
