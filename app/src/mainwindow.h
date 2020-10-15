@@ -10,6 +10,7 @@
 #include <QPixmap>
 #include <QAction>
 #include <QMenuBar>
+#include <QUndoStack>
 
 #include <iostream>
 
@@ -43,6 +44,6 @@ private:
     Ui::MainWindow *ui;
     QFileSystemModel *dirmodel;
     QSortFilterProxyModel *proxyModel;
-
+    QUndoStack *undoStack;
 };
 #endif // MAINWINDOW_H

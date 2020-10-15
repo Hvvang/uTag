@@ -23,8 +23,8 @@ include_directories(../3dparty/taglib/taglib/toolkit/)
 include_directories(../build/3dparty/taglib/)
 
 
-set(SOURCES main.cpp src/mainwindow.cpp src/fileInfo.cpp src/errordialog.cpp src/FileTable.cpp src/TableView.cpp)
-set(HEADERS src/mainwindow.h src/errordialog.h src/FileTable.h src/ImageFile.h src/TableView.h)
+set(SOURCES main.cpp src/mainwindow.cpp src/fileInfo.cpp src/errordialog.cpp src/FileTable.cpp src/TableView.cpp src/CommandEdit.cpp)
+set(HEADERS src/mainwindow.h src/errordialog.h src/FileTable.h src/ImageFile.h src/TableView.h src/CommandEdit.h)
 set(UI src/mainwindow.ui src/errordialog.ui)
 
 

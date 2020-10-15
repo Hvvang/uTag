@@ -8,7 +8,8 @@ MainWindow::MainWindow(QString sPath, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , dirmodel(new QFileSystemModel)
-    , proxyModel(new QSortFilterProxyModel) {
+    , proxyModel(new QSortFilterProxyModel)
+    , undoStack(new QUndoStack) {
     ui->setupUi(this);
     QPixmap pix(defaultCoverImage);
 
@@ -33,7 +34,6 @@ void MainWindow::on_tableView_clicked(const QModelIndex &index) {
     FileInfo file((FileInfo(sPath)));
     QPixmap pix = file.getCover();
 
-    ui->Lyrics->setPlainText(file.getLyrics());
     ui_coverImageUpdate(pix);
 }
 
@@ -47,7 +47,7 @@ void MainWindow::ui_fileBrowserUpdate(QString sPath) {
 }
 
 void MainWindow::ui_tagsTableUpdate(QString sPath) {
-    FileTable *tablemodel = new FileTable(sPath);
+    FileTable *tablemodel = new FileTable(undoStack, sPath);
     proxyModel->setSourceModel(tablemodel);
     ui->tableView->setModel(proxyModel);
 }
@@ -77,11 +77,13 @@ void MainWindow::createMenus() {
 
     QMenu *editMenu = menuBar()->addMenu(tr("&Edit"));
 
-    QAction *undoAct = new QAction(tr("&Undo"), this);
+    QAction *undoAct = undoStack->createUndoAction(this, tr("&Undo"));
+    undoAct->setShortcuts(QKeySequence::Undo);
     editMenu->addAction(undoAct);
     // connect(undoAct, &QAction::triggered, this, &MainWindow::undoFile);
 
-    QAction *redoAct = new QAction(tr("&Redo"), this);
+    QAction *redoAct = undoStack->createRedoAction(this, tr("&Redo"));
+    redoAct->setShortcuts(QKeySequence::Redo);
     editMenu->addAction(redoAct);
     // connect(redoAct, &QAction::triggered, this, &MainWindow::redoFile);
 

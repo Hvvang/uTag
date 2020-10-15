@@ -1,11 +1,13 @@
 #include "FileTable.h"
+#include "CommandEdit.h"
 
 FileTable::FileTable(QWidget *parent)
     : QAbstractTableModel(parent) {
 }
 
-FileTable::FileTable(QString& sPath, QWidget *parent)
+FileTable::FileTable(QUndoStack *undoStack, QString& sPath, QWidget *parent)
     : QAbstractTableModel(parent) {
+    this->undoStack = undoStack;
     QDir *d = new QDir(sPath);
     QFileInfoList sl = d->entryInfoList(QStringList() << "*.mp3" << "*.flac" << "*.waw" << "*.ogg");
 
@@ -79,18 +81,57 @@ bool FileTable::setData(const QModelIndex &index, const QVariant &value, int rol
      if (index.isValid() && role == Qt::EditRole) {
          const int row = index.row();
          auto file = files.value(row);
+         QVariant prevValue;
 
          switch (index.column()) {
              case 0:
+                 prevValue = QVariant(file.getArtist());
                  file.setArtist(value.toString());
                  break;
              case 1:
+                 prevValue = QVariant(file.getTitle());
                  file.setTitle(value.toString());
                  break;
              case 2:
+                 prevValue = QVariant(file.getAlbum());
                  file.setAlbum(value.toString());
                  break;
              case 3:
+                 prevValue = QVariant(file.getGenre());
+                 file.setGenre(value.toString());
+                 break;
+             default:
+                 return false;
+         }
+
+         this->undoStack->push(new CommandEdit(this, index,prevValue, value));
+         emit dataChanged(index, index, {Qt::DisplayRole, Qt::EditRole});
+         return true;
+     }
+     return false;
+ }
+
+bool FileTable::redoData(const QModelIndex &index, const QVariant &value, int role) {
+     if (index.isValid() && role == Qt::EditRole) {
+         const int row = index.row();
+         auto file = files.value(row);
+         QVariant prevValue;
+
+         switch (index.column()) {
+             case 0:
+                 prevValue = QVariant(file.getArtist());
+                 file.setArtist(value.toString());
+                 break;
+             case 1:
+                 prevValue = QVariant(file.getTitle());
+                 file.setTitle(value.toString());
+                 break;
+             case 2:
+                 prevValue = QVariant(file.getAlbum());
+                 file.setAlbum(value.toString());
+                 break;
+             case 3:
+                 prevValue = QVariant(file.getGenre());
                  file.setGenre(value.toString());
                  break;
              default:

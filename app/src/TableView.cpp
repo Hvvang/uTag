@@ -3,7 +3,7 @@
 
 
 TableView::TableView(QWidget *parent) :
-    QTableView(parent) { }
+    QTableView(parent) {}
 
 void TableView::commitData(QWidget *editor) {
     QAbstractItemView::commitData(editor);
