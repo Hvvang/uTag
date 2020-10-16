@@ -4,6 +4,7 @@
 #include "FileTable.h"
 #include <QFileDialog>
 #include "CommandEdit.h"
+#include "Preferences.h"
 
 MainWindow::MainWindow(QString sPath, QWidget *parent)
     : QMainWindow(parent)
@@ -12,6 +13,15 @@ MainWindow::MainWindow(QString sPath, QWidget *parent)
     , proxyModel(new QSortFilterProxyModel)
     , undoStack(new QUndoStack) {
     ui->setupUi(this);
+
+    QSettings *settings = new QSettings("Moose Soft", "Clipper");
+
+    settings->beginGroup("MainWindow");
+    settings->setValue("showBrowser", true);
+    settings->setValue("showCover", true);
+    settings->setValue("showLyrics", true);
+    settings->endGroup();
+
     QPixmap pix(defaultCoverImage);
 
     ui->Lyrics->installEventFilter(this);
@@ -38,8 +48,6 @@ void MainWindow::on_treeView_clicked(const QModelIndex &index) {
 
 void MainWindow::on_tableView_clicked(const QModelIndex &index) {
     auto selection = ui->tableView->selectionModel()->selectedRows();
-    ui->treeView->hide();
-    ui->Lyrics->hide();
     if (!selection.empty()) {
         QModelIndex fPath = ui->tableView->model()->index(selection.last().row(), 4, QModelIndex());
         QString sPath = ui->tableView->model()->data(fPath).toString();
@@ -91,21 +99,19 @@ void MainWindow::createMenus() {
     fileMenu->addAction(openAct);
     connect(openAct, &QAction::triggered, this, &MainWindow::openFile);
 
-    QAction *saveAct = new QAction(tr("&Save"), this);
-    fileMenu->addAction(saveAct);
-    // connect(saveAct, &QAction::triggered, this, &MainWindow::saveFile);
+    QAction *prefAct = new QAction(tr("&Preferences"), this);
+    fileMenu->addAction(prefAct);
+     connect(prefAct, &QAction::triggered, this, &MainWindow::openPreferences);
 
     QMenu *editMenu = menuBar()->addMenu(tr("&Edit"));
 
     QAction *undoAct = undoStack->createUndoAction(this, tr("&Undo"));
     undoAct->setShortcuts(QKeySequence::Undo);
     editMenu->addAction(undoAct);
-    // connect(undoAct, &QAction::triggered, this, &MainWindow::undoFile);
 
     QAction *redoAct = undoStack->createRedoAction(this, tr("&Redo"));
     redoAct->setShortcuts(QKeySequence::Redo);
     editMenu->addAction(redoAct);
-    // connect(redoAct, &QAction::triggered, this, &MainWindow::redoFile);
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
 
@@ -206,4 +212,31 @@ bool MainWindow::eventFilter(QObject *object, QEvent *event) {
 
     }
     return false;
+}
+
+void MainWindow::openPreferences() {
+    Preferences *pref = new Preferences();
+    if (pref->exec() == QDialog::Accepted) {
+        QSettings *settings = new QSettings("Moose Soft", "Clipper");
+        settings->beginGroup("MainWindow");
+        if (settings->value("showBrowser").toBool()) {
+            ui->treeView->show();
+        } else {
+            ui->treeView->hide();
+        }
+        if (settings->value("showCover").toBool()) {
+            ui->coverImage->show();
+        } else {
+            ui->coverImage->hide();
+        }
+        if (settings->value("showLyrics").toBool()) {
+            ui->Lyrics->show();
+            ui->lyr_label->show();
+        } else {
+            ui->Lyrics->hide();
+            ui->lyr_label->hide();
+        }
+        settings->endGroup();
+    }
+
 }

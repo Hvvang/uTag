@@ -33,6 +33,7 @@ private:
     void createMenus();
     void openFile();
     void lyricsUpdate();
+    void openPreferences();
 
 protected:
     bool eventFilter(QObject *object, QEvent *event);

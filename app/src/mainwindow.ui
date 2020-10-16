@@ -85,6 +85,9 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="contextMenuPolicy">
+       <enum>Qt::NoContextMenu</enum>
+      </property>
      </widget>
     </item>
     <item row="0" column="3">
@@ -93,7 +96,7 @@
        <enum>QLayout::SetDefaultConstraint</enum>
       </property>
       <item row="3" column="1" alignment="Qt::AlignTop">
-       <widget class="QLabel" name="label_6">
+       <widget class="QLabel" name="lyr_label">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
           <horstretch>0</horstretch>

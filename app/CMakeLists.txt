@@ -13,19 +13,19 @@ find_library(TAGLIB taglib)
 find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 include_directories(../3dparty/taglib/taglib/)
-include_directories(../3dparty/taglib/taglib/asf/)
+#include_directories(../3dparty/taglib/taglib/asf/)
 include_directories(../3dparty/taglib/taglib/mpeg/)
 include_directories(../3dparty/taglib/taglib/mpeg/id3v2/)
 include_directories(../3dparty/taglib/taglib/mpeg/id3v2/frames/)
 
-include_directories(../3dparty/taglib/taglib/frames/)
+#include_directories(../3dparty/taglib/taglib/frames/)
 include_directories(../3dparty/taglib/taglib/toolkit/)
 include_directories(../build/3dparty/taglib/)
 
 
-set(SOURCES main.cpp src/mainwindow.cpp src/fileInfo.cpp src/errordialog.cpp src/FileTable.cpp src/TableView.cpp src/CommandEdit.cpp)
-set(HEADERS src/mainwindow.h src/errordialog.h src/FileTable.h src/ImageFile.h src/TableView.h src/CommandEdit.h)
-set(UI src/mainwindow.ui src/errordialog.ui)
+set(SOURCES main.cpp src/mainwindow.cpp src/fileInfo.cpp src/errordialog.cpp src/FileTable.cpp src/TableView.cpp src/CommandEdit.cpp src/Preferences.cpp)
+set(HEADERS src/mainwindow.h src/fileInfo.h src/errordialog.h src/FileTable.h src/TableView.h src/CommandEdit.h src/Preferences.h)
+set(UI src/mainwindow.ui src/errordialog.ui src/Preferences.ui)
 
 
 #set(MACOSX_BUNDLE_ICON_FILE tag.png)

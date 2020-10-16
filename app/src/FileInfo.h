@@ -2,15 +2,10 @@
 
 #include <tag.h>
 #include <fileref.h>
-#include <tstring.h>
-#include <iostream>
-#include <string>
 #include <attachedpictureframe.h>
-#include <asfpicture.h>
 #include <mpegfile.h>
 #include <id3v2tag.h>
 #include <QString>
-
 #include <QPixmap>
 
 #define defaultCoverImage "./app/src/asserts/defaultCoverImage.png"

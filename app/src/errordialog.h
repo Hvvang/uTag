@@ -4,7 +4,6 @@
 #include <QDialog>
 #include <QtCore>
 #include <QtGui>
-#include <QVariant>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class ErrorDialog; }
