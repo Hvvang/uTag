@@ -15,7 +15,7 @@ class FileInfo {
 
 
 public:
-    FileInfo(const QString& path);
+    FileInfo(const QString& path, const bool &valid = true);
     FileInfo() = default;
     ~FileInfo() = default;
 
@@ -27,6 +27,8 @@ public:
     QString getLyrics() const;
     QPixmap getCover() const;
 
+    bool isValid() const { return valid; };
+
     void setArtist(const QString& artist);
     void setTitle(const QString& title);
     void setAlbum(const QString& album);
@@ -35,5 +37,6 @@ public:
     void setCover(const QString& imagePath);
 private:
     TagLib::FileRef file;
+    bool valid;
     const QString filePath;
 };

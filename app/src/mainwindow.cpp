@@ -6,6 +6,16 @@
 #include "CommandEdit.h"
 #include "Preferences.h"
 
+
+void setupDefaultSettings() {
+    QSettings *settings = new QSettings("Moose Soft", "Clipper");
+    settings->beginGroup("MainWindow");
+    settings->setValue("showBrowser", true);
+    settings->setValue("showCover", true);
+    settings->setValue("showLyrics", true);
+    settings->endGroup();
+}
+
 MainWindow::MainWindow(QString sPath, QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -14,13 +24,7 @@ MainWindow::MainWindow(QString sPath, QWidget *parent)
     , undoStack(new QUndoStack) {
     ui->setupUi(this);
 
-    QSettings *settings = new QSettings("Moose Soft", "Clipper");
-
-    settings->beginGroup("MainWindow");
-    settings->setValue("showBrowser", true);
-    settings->setValue("showCover", true);
-    settings->setValue("showLyrics", true);
-    settings->endGroup();
+    setupDefaultSettings();
 
     QPixmap pix(defaultCoverImage);
 
@@ -51,19 +55,25 @@ void MainWindow::on_tableView_clicked(const QModelIndex &index) {
     if (!selection.empty()) {
         QModelIndex fPath = ui->tableView->model()->index(selection.last().row(), 4, QModelIndex());
         QString sPath = ui->tableView->model()->data(fPath).toString();
-        FileInfo file((FileInfo(sPath)));
-        QPixmap pix = file.getCover();
+        if (QFileInfo(sPath).isReadable()) {
+            FileInfo file(sPath);
+            QPixmap pix = file.getCover();
 
-        ui->Lyrics->setPlainText(file.getLyrics());
-        ui_coverImageUpdate(pix);
-        ui->Lyrics->setFocusPolicy(Qt::StrongFocus);
-        ui->coverImage->setEnabled(true);
-    } else {
-        ui->Lyrics->clear();
-        ui->Lyrics->setFocusPolicy(Qt::NoFocus);
-        ui->coverImage->setEnabled(false);
-        ui_coverImageUpdate(QPixmap(defaultCoverImage));
+            ui->Lyrics->setPlainText(file.getLyrics());
+            ui->Lyrics->setFocusPolicy(Qt::StrongFocus);
+            ui->coverImage->setEnabled(true);
+            ui_coverImageUpdate(pix);
+            return;
+        } else {
+
+            ErrorDialog dialog;
+            dialog.exec();
+        }
     }
+    ui->Lyrics->clear();
+    ui->Lyrics->setFocusPolicy(Qt::NoFocus);
+    ui->coverImage->setEnabled(false);
+    ui_coverImageUpdate(QPixmap(defaultCoverImage));
 }
 
 void MainWindow::ui_fileBrowserUpdate(QString sPath) {
@@ -96,12 +106,14 @@ void MainWindow::createMenus() {
     QMenu *fileMenu = menuBar()->addMenu(tr("&File"));
 
     QAction *openAct = new QAction(tr("&Open..."), this);
+    openAct->setShortcuts(QKeySequence::Open);
     fileMenu->addAction(openAct);
     connect(openAct, &QAction::triggered, this, &MainWindow::openFile);
 
     QAction *prefAct = new QAction(tr("&Preferences"), this);
+    prefAct->setShortcuts(QKeySequence::Preferences);
     fileMenu->addAction(prefAct);
-     connect(prefAct, &QAction::triggered, this, &MainWindow::openPreferences);
+    connect(prefAct, &QAction::triggered, this, &MainWindow::openPreferences);
 
     QMenu *editMenu = menuBar()->addMenu(tr("&Edit"));
 
@@ -131,13 +143,21 @@ void MainWindow::createMenus() {
 }
 
 void MainWindow::openFile() {
-    QString dirName = QFileDialog::getExistingDirectory(this, tr("Open Directory"), "~/Desktop",
-                                                        QFileDialog::ShowDirsOnly |
-                                                        QFileDialog::DontResolveSymlinks);
-    QPixmap pix(defaultCoverImage);
-    ui_fileBrowserUpdate(dirName);
-    ui_tagsTableUpdate(dirName);
-    ui_coverImageUpdate(pix);
+    QFileDialog dialog;
+    dialog.setOptions(QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    dialog.setNameFilter(tr("Open Directory"));
+    if (dialog.exec() == QDialog::Accepted) {
+        QString dirName = dialog.selectedFiles().front();
+        if (QDir(dirName).isReadable()) {
+            QPixmap pix(defaultCoverImage);
+            ui_fileBrowserUpdate(dirName);
+            ui_tagsTableUpdate(dirName);
+            ui_coverImageUpdate(pix);
+        } else {
+            ErrorDialog dialog;
+            dialog.exec();
+        }
+    }
 }
 
 // Handler for mouse pressed on button that stores audio album cover image,
@@ -151,19 +171,25 @@ void MainWindow::on_coverImage_clicked() {
         QString imagePath = QFileDialog::getOpenFileName(this, tr("Open File"), "~/Desktop",
                                                          tr("Images (*.png *.xpm *.jpg *.jpeg)"));
 
-        QPixmap pix;
-        // Multiple rows can be selected
-        for(int i = 0; i < selection.count() && !imagePath.isEmpty(); ++i) {
-            QModelIndex index = selection.at(i);
-            QModelIndex fPath = ui->tableView->model()->index(index.row(), 4, QModelIndex());
-            QString sPath = ui->tableView->model()->data(fPath).toString();
-            FileInfo file((FileInfo(sPath)));
+        QFile file(imagePath);
+        if (file.isReadable()) {
+            QPixmap pix;
+            // Multiple rows can be selected
+            for(int i = 0; i < selection.count() && !imagePath.isEmpty(); ++i) {
+                QModelIndex index = selection.at(i);
+                QModelIndex fPath = ui->tableView->model()->index(index.row(), 4, QModelIndex());
+                QString sPath = ui->tableView->model()->data(fPath).toString();
+                FileInfo file((FileInfo(sPath)));
 
-            file.setCover(imagePath);
-            if (!pix) {
-                pix = file.getCover();
-                ui_coverImageUpdate(pix);
+                file.setCover(imagePath);
+                if (!pix) {
+                    pix = file.getCover();
+                    ui_coverImageUpdate(pix);
+                }
             }
+        } else {
+            ErrorDialog dialog;
+            dialog.exec();
         }
     }
 }
@@ -178,39 +204,27 @@ void MainWindow::lyricsUpdate() {
          QString nextValue = ui->Lyrics->toPlainText();
 
          file->setLyrics(nextValue);
-
-         undoStack->push(new LyricsEdit(ui->Lyrics, ui->tableView, file, prevValue, nextValue));
+         if (prevValue != nextValue)
+            undoStack->push(new LyricsEdit(ui->Lyrics, ui->tableView, file, prevValue, nextValue));
      }
 }
 
 bool MainWindow::eventFilter(QObject *object, QEvent *event) {
     if (object == ui->Lyrics) {
-//        qDebug() << event->type();
-
         if (event->type() == QEvent::KeyPress) {
             QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
             if (keyEvent->key() == Qt::Key_Escape) {
-
                 lyricsUpdate();
 //                ui->tableView->setFocus();
                 return true;
             }
         }
-
         if (event->type() == QEvent::FocusOut) {
 //            lyricsUpdate();
 //            ui->tableView->setFocus();
         }
-
     }
-    if (object == ui->tableView) {
-//        qDebug() << event->type();
-//        if (event->type() == QEvent::FocusOut) {
-//            lyricsUpdate();
-//            ui->tableView->setFocus();
-//        }
 
-    }
     return false;
 }
 

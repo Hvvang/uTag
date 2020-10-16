@@ -1,5 +1,6 @@
 #include "FileTable.h"
 #include "CommandEdit.h"
+#include "errordialog.h"
 
 FileTable::FileTable(QWidget *parent)
     : QAbstractTableModel(parent) {
@@ -12,9 +13,7 @@ FileTable::FileTable(QUndoStack *undoStack, QString& sPath, QWidget *parent)
     QFileInfoList sl = d->entryInfoList(QStringList() << "*.mp3" << "*.flac" << "*.waw" << "*.ogg");
 
     for (const auto& it : sl) {
-      if (it.permissions() & QFileDevice::ReadOwner) {
-          files.push_back(FileInfo(it.filePath()));
-      }
+        files.push_back(FileInfo(it.filePath(), it.isReadable()));
     }
 }
 
@@ -36,6 +35,10 @@ QVariant FileTable::data(const QModelIndex &index, int role) const {
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
         const auto &file = files.at(index.row());
 
+        if (!file.isValid()) {
+            if (index.column() != 4)
+                return "-";
+        }
         switch (index.column()) {
             case 0:
                 return file.getArtist();
@@ -83,29 +86,35 @@ bool FileTable::setData(const QModelIndex &index, const QVariant &value, int rol
          auto file = files.value(row);
          QVariant prevValue;
 
-         switch (index.column()) {
-             case 0:
-                 prevValue = QVariant(file.getArtist());
-                 file.setArtist(value.toString());
-                 break;
-             case 1:
-                 prevValue = QVariant(file.getTitle());
-                 file.setTitle(value.toString());
-                 break;
-             case 2:
-                 prevValue = QVariant(file.getAlbum());
-                 file.setAlbum(value.toString());
-                 break;
-             case 3:
-                 prevValue = QVariant(file.getGenre());
-                 file.setGenre(value.toString());
-                 break;
-             default:
-                 return false;
-         }
+         if (QFileInfo(file.getFilePath()).isWritable()) {
+             switch (index.column()) {
+                 case 0:
+                     prevValue = QVariant(file.getArtist());
+                     file.setArtist(value.toString());
+                     break;
+                 case 1:
+                     prevValue = QVariant(file.getTitle());
+                     file.setTitle(value.toString());
+                     break;
+                 case 2:
+                     prevValue = QVariant(file.getAlbum());
+                     file.setAlbum(value.toString());
+                     break;
+                 case 3:
+                     prevValue = QVariant(file.getGenre());
+                     file.setGenre(value.toString());
+                     break;
+                 default:
+                     return false;
+             }
+             if (prevValue != value)
+                this->undoStack->push(new TableEdit(this, index, prevValue, value));
+             emit dataChanged(index, index, {Qt::DisplayRole, Qt::EditRole});
+         } else {
+             ErrorDialog dialog;
+             dialog.exec();
+          }
 
-         this->undoStack->push(new TableEdit(this, index,prevValue, value));
-         emit dataChanged(index, index, {Qt::DisplayRole, Qt::EditRole});
          return true;
      }
      return false;
@@ -117,27 +126,33 @@ bool FileTable::redoData(const QModelIndex &index, const QVariant &value, int ro
          auto file = files.value(row);
          QVariant prevValue;
 
-         switch (index.column()) {
-             case 0:
-                 prevValue = QVariant(file.getArtist());
-                 file.setArtist(value.toString());
-                 break;
-             case 1:
-                 prevValue = QVariant(file.getTitle());
-                 file.setTitle(value.toString());
-                 break;
-             case 2:
-                 prevValue = QVariant(file.getAlbum());
-                 file.setAlbum(value.toString());
-                 break;
-             case 3:
-                 prevValue = QVariant(file.getGenre());
-                 file.setGenre(value.toString());
-                 break;
-             default:
-                 return false;
+         if (QFileInfo(file.getFilePath()).isWritable()) {
+             switch (index.column()) {
+                 case 0:
+                     prevValue = QVariant(file.getArtist());
+                     file.setArtist(value.toString());
+                     break;
+                 case 1:
+                     prevValue = QVariant(file.getTitle());
+                     file.setTitle(value.toString());
+                     break;
+                 case 2:
+                     prevValue = QVariant(file.getAlbum());
+                     file.setAlbum(value.toString());
+                     break;
+                 case 3:
+                     prevValue = QVariant(file.getGenre());
+                     file.setGenre(value.toString());
+                     break;
+                 default:
+                     return false;
+             }
+             emit dataChanged(index, index, {Qt::DisplayRole, Qt::EditRole});
+         } else {
+            ErrorDialog dialog;
+            dialog.exec();
          }
-         emit dataChanged(index, index, {Qt::DisplayRole, Qt::EditRole});
+
          return true;
      }
      return false;

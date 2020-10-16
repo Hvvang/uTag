@@ -30,8 +30,6 @@ LyricsEdit::LyricsEdit(QPlainTextEdit *widget, QTableView *table, FileInfo *file
 }
 
 void LyricsEdit::undo() {
-    qDebug() << this->model << this->table->model();
-
     if (index.row() == table->currentIndex().row() && model == table->model()) {
         widget->setPlainText(prev);
     }

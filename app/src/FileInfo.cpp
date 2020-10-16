@@ -1,12 +1,12 @@
 #include "FileInfo.h"
 #include "ImageFile.h"
 
-FileInfo::FileInfo(const QString& path) :
-    filePath(path) {
-    // TagLib::FileName fn(path.toStdString().c_str());
-    // if (fn.isValid()) {
+FileInfo::FileInfo(const QString& path, const bool &valid)
+    : filePath(path)
+    , valid(valid) {
+    if (valid) {
         file = TagLib::FileRef(path.toStdString().c_str());
-    // }
+    }
 }
 
 QString FileInfo::getArtist() const {
