@@ -104,7 +104,7 @@ bool FileTable::setData(const QModelIndex &index, const QVariant &value, int rol
                  return false;
          }
 
-         this->undoStack->push(new CommandEdit(this, index,prevValue, value));
+         this->undoStack->push(new TableEdit(this, index,prevValue, value));
          emit dataChanged(index, index, {Qt::DisplayRole, Qt::EditRole});
          return true;
      }

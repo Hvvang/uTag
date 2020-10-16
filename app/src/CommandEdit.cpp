@@ -1,6 +1,6 @@
 #include "CommandEdit.h"
 
-CommandEdit::CommandEdit(FileTable *model, const QModelIndex &index, const QVariant &prev,
+TableEdit::TableEdit(FileTable *model, const QModelIndex &index, const QVariant &prev,
                          const QVariant &next, QUndoCommand *parent)
     : QUndoCommand(parent)
     , index(index)
@@ -9,10 +9,38 @@ CommandEdit::CommandEdit(FileTable *model, const QModelIndex &index, const QVari
     this->model = model;
 }
 
-void CommandEdit::undo() {
+void TableEdit::undo() {
     this->model->setData(index, prev);
 }
 
-void CommandEdit::redo() {
+void TableEdit::redo() {
     this->model->redoData(index, next);
+}
+
+LyricsEdit::LyricsEdit(QPlainTextEdit *widget, QTableView *table, FileInfo *file,
+                       const QString &prev, const QString &next, QUndoCommand *parent)
+    : QUndoCommand(parent)
+    , index(table->currentIndex())
+    , prev(prev)
+    , next(next) {
+    this->widget = widget;
+    this->table = table;
+    this->model = table->model();
+    this->file = file;
+}
+
+void LyricsEdit::undo() {
+    qDebug() << this->model << this->table->model();
+
+    if (index.row() == table->currentIndex().row() && model == table->model()) {
+        widget->setPlainText(prev);
+    }
+    file->setLyrics(prev);
+}
+
+void LyricsEdit::redo() {
+    if (index.row() == table->currentIndex().row() && model == table->model()) {
+        widget->setPlainText(prev);
+    }
+    file->setLyrics(next);
 }

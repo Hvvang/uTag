@@ -11,8 +11,8 @@
 #include <QAction>
 #include <QMenuBar>
 #include <QUndoStack>
-
 #include <iostream>
+#include <QTableView>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -21,10 +21,10 @@ QT_END_NAMESPACE
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
-
 public:
     MainWindow(QString sPath = "/", QWidget *parent = nullptr);
     ~MainWindow();
+
 
 private:
     void ui_fileBrowserUpdate(QString sPath);
@@ -32,13 +32,15 @@ private:
     void ui_coverImageUpdate(QPixmap pix);
     void createMenus();
     void openFile();
+    void lyricsUpdate();
+
+protected:
+    bool eventFilter(QObject *object, QEvent *event);
 
 private slots:
     void on_treeView_clicked(const QModelIndex &index);
     void on_tableView_clicked(const QModelIndex &index);
     void on_coverImage_clicked();
-
-    void on_Lyrics_textChanged();
 
 private:
     Ui::MainWindow *ui;
@@ -46,4 +48,6 @@ private:
     QSortFilterProxyModel *proxyModel;
     QUndoStack *undoStack;
 };
+
+
 #endif // MAINWINDOW_H

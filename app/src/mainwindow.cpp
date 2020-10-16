@@ -3,6 +3,7 @@
 #include "errordialog.h"
 #include "FileTable.h"
 #include <QFileDialog>
+#include "CommandEdit.h"
 
 MainWindow::MainWindow(QString sPath, QWidget *parent)
     : QMainWindow(parent)
@@ -13,6 +14,9 @@ MainWindow::MainWindow(QString sPath, QWidget *parent)
     ui->setupUi(this);
     QPixmap pix(defaultCoverImage);
 
+    ui->Lyrics->installEventFilter(this);
+    ui->coverImage->installEventFilter(this);
+    ui->tableView->installEventFilter(this);
     createMenus();
     ui_fileBrowserUpdate(sPath);
     ui_tagsTableUpdate(sPath);
@@ -26,15 +30,32 @@ MainWindow::~MainWindow() {
 void MainWindow::on_treeView_clicked(const QModelIndex &index) {
     QString sPath = dirmodel->fileInfo(index).absoluteFilePath();
     ui_tagsTableUpdate(sPath);
+    ui->Lyrics->clear();
+    ui->Lyrics->setFocusPolicy(Qt::NoFocus);
+    ui->coverImage->setEnabled(false);
+    ui_coverImageUpdate(QPixmap(defaultCoverImage));
 }
 
 void MainWindow::on_tableView_clicked(const QModelIndex &index) {
-    QModelIndex fPath = ui->tableView->model()->index(index.row(), 4, QModelIndex());
-    QString sPath = ui->tableView->model()->data(fPath).toString();
-    FileInfo file((FileInfo(sPath)));
-    QPixmap pix = file.getCover();
+    auto selection = ui->tableView->selectionModel()->selectedRows();
+    ui->treeView->hide();
+    ui->Lyrics->hide();
+    if (!selection.empty()) {
+        QModelIndex fPath = ui->tableView->model()->index(selection.last().row(), 4, QModelIndex());
+        QString sPath = ui->tableView->model()->data(fPath).toString();
+        FileInfo file((FileInfo(sPath)));
+        QPixmap pix = file.getCover();
 
-    ui_coverImageUpdate(pix);
+        ui->Lyrics->setPlainText(file.getLyrics());
+        ui_coverImageUpdate(pix);
+        ui->Lyrics->setFocusPolicy(Qt::StrongFocus);
+        ui->coverImage->setEnabled(true);
+    } else {
+        ui->Lyrics->clear();
+        ui->Lyrics->setFocusPolicy(Qt::NoFocus);
+        ui->coverImage->setEnabled(false);
+        ui_coverImageUpdate(QPixmap(defaultCoverImage));
+    }
 }
 
 void MainWindow::ui_fileBrowserUpdate(QString sPath) {
@@ -58,7 +79,6 @@ void MainWindow::ui_coverImageUpdate(QPixmap pix) {
        pix = QPixmap(defaultCoverImage);
     }
     palette.setBrush(ui->coverImage->backgroundRole(), QBrush(pix.scaled(ui->coverImage->width(), ui->coverImage->height(), Qt::KeepAspectRatio)));
-
     ui->coverImage->setFlat(true);
     ui->coverImage->setAutoFillBackground(true);
     ui->coverImage->setPalette(palette);
@@ -142,10 +162,48 @@ void MainWindow::on_coverImage_clicked() {
     }
 }
 
-void MainWindow::on_Lyrics_textChanged() {
-    auto currRow = ui->tableView->currentIndex().row();
-    auto index = ui->tableView->model()->index(currRow, 4);
-    QString fPath = ui->tableView->model()->data(index).toString();
-    FileInfo file((FileInfo(fPath)));
-    file.setLyrics(ui->Lyrics->toPlainText());
+void MainWindow::lyricsUpdate() {
+     auto currRow = ui->tableView->currentIndex().row();
+     if (currRow != -1) {
+         auto index = ui->tableView->model()->index(currRow, 4);
+         QString fPath = ui->tableView->model()->data(index).toString();
+         FileInfo *file = new FileInfo(fPath);
+         QString prevValue = file->getLyrics();
+         QString nextValue = ui->Lyrics->toPlainText();
+
+         file->setLyrics(nextValue);
+
+         undoStack->push(new LyricsEdit(ui->Lyrics, ui->tableView, file, prevValue, nextValue));
+     }
+}
+
+bool MainWindow::eventFilter(QObject *object, QEvent *event) {
+    if (object == ui->Lyrics) {
+//        qDebug() << event->type();
+
+        if (event->type() == QEvent::KeyPress) {
+            QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+            if (keyEvent->key() == Qt::Key_Escape) {
+
+                lyricsUpdate();
+//                ui->tableView->setFocus();
+                return true;
+            }
+        }
+
+        if (event->type() == QEvent::FocusOut) {
+//            lyricsUpdate();
+//            ui->tableView->setFocus();
+        }
+
+    }
+    if (object == ui->tableView) {
+//        qDebug() << event->type();
+//        if (event->type() == QEvent::FocusOut) {
+//            lyricsUpdate();
+//            ui->tableView->setFocus();
+//        }
+
+    }
+    return false;
 }
