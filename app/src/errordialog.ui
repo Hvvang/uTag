@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>ErrorDialog</class>
- <widget class="QDialog" name="Dialog">
+ <widget class="QDialog" name="ErrorDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -31,10 +31,16 @@
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
+     <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
       <widget class="QLabel" name="label">
        <property name="text">
         <string/>
+       </property>
+       <property name="pixmap">
+        <pixmap>asserts/error.png</pixmap>
+       </property>
+       <property name="scaledContents">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -61,7 +67,7 @@
   <connection>
    <sender>pushButton</sender>
    <signal>clicked()</signal>
-   <receiver>Dialog</receiver>
+   <receiver>ErrorDialog</receiver>
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">

@@ -5,7 +5,7 @@
 #include <QFileDialog>
 #include "CommandEdit.h"
 #include "Preferences.h"
-
+#include <QMessageBox>
 
 void setupDefaultSettings() {
     QSettings *settings = new QSettings("Moose Soft", "Clipper");
@@ -28,9 +28,6 @@ MainWindow::MainWindow(QString sPath, QWidget *parent)
 
     QPixmap pix(defaultCoverImage);
 
-    ui->Lyrics->installEventFilter(this);
-    ui->coverImage->installEventFilter(this);
-    ui->tableView->installEventFilter(this);
     createMenus();
     ui_fileBrowserUpdate(sPath);
     ui_tagsTableUpdate(sPath);
@@ -65,9 +62,8 @@ void MainWindow::on_tableView_clicked(const QModelIndex &index) {
             ui_coverImageUpdate(pix);
             return;
         } else {
-
-            ErrorDialog dialog;
-            dialog.exec();
+            QMessageBox::warning(this, tr("Error"),
+                    tr("Not enough permission!"), QMessageBox::Ok);
         }
     }
     ui->Lyrics->clear();
@@ -109,6 +105,11 @@ void MainWindow::createMenus() {
     openAct->setShortcuts(QKeySequence::Open);
     fileMenu->addAction(openAct);
     connect(openAct, &QAction::triggered, this, &MainWindow::openFile);
+
+    QAction *saveAct = new QAction(tr("&Save"), this);
+    saveAct->setShortcuts(QKeySequence::Save);
+    fileMenu->addAction(saveAct);
+    connect(saveAct, &QAction::triggered, this, &MainWindow::lyricsUpdate);
 
     QAction *prefAct = new QAction(tr("&Preferences"), this);
     prefAct->setShortcuts(QKeySequence::Preferences);
@@ -154,8 +155,8 @@ void MainWindow::openFile() {
             ui_tagsTableUpdate(dirName);
             ui_coverImageUpdate(pix);
         } else {
-            ErrorDialog dialog;
-            dialog.exec();
+            QMessageBox::warning(this, tr("Error"),
+                    tr("Not enough permission!"), QMessageBox::Ok);
         }
     }
 }
@@ -170,8 +171,7 @@ void MainWindow::on_coverImage_clicked() {
     if (selection.count()) {
         QString imagePath = QFileDialog::getOpenFileName(this, tr("Open File"), "~/Desktop",
                                                          tr("Images (*.png *.xpm *.jpg *.jpeg)"));
-
-        QFile file(imagePath);
+        auto file = QFileInfo(imagePath);
         if (file.isReadable()) {
             QPixmap pix;
             // Multiple rows can be selected
@@ -187,9 +187,9 @@ void MainWindow::on_coverImage_clicked() {
                     ui_coverImageUpdate(pix);
                 }
             }
-        } else {
-            ErrorDialog dialog;
-            dialog.exec();
+        } else if (file.exists()) {
+            QMessageBox::warning(this, tr("Error"),
+                    tr("Not enough permission!"), QMessageBox::Ok);
         }
     }
 }
@@ -207,25 +207,6 @@ void MainWindow::lyricsUpdate() {
          if (prevValue != nextValue)
             undoStack->push(new LyricsEdit(ui->Lyrics, ui->tableView, file, prevValue, nextValue));
      }
-}
-
-bool MainWindow::eventFilter(QObject *object, QEvent *event) {
-    if (object == ui->Lyrics) {
-        if (event->type() == QEvent::KeyPress) {
-            QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-            if (keyEvent->key() == Qt::Key_Escape) {
-                lyricsUpdate();
-//                ui->tableView->setFocus();
-                return true;
-            }
-        }
-        if (event->type() == QEvent::FocusOut) {
-//            lyricsUpdate();
-//            ui->tableView->setFocus();
-        }
-    }
-
-    return false;
 }
 
 void MainWindow::openPreferences() {

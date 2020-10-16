@@ -1,6 +1,8 @@
 #include "FileTable.h"
 #include "CommandEdit.h"
-#include "errordialog.h"
+// #include <QtWidgets>
+#include <QtCore>
+#include <QMessageBox>
 
 FileTable::FileTable(QWidget *parent)
     : QAbstractTableModel(parent) {
@@ -111,8 +113,8 @@ bool FileTable::setData(const QModelIndex &index, const QVariant &value, int rol
                 this->undoStack->push(new TableEdit(this, index, prevValue, value));
              emit dataChanged(index, index, {Qt::DisplayRole, Qt::EditRole});
          } else {
-             ErrorDialog dialog;
-             dialog.exec();
+             QMessageBox::warning(NULL, tr("Error"),
+                     tr("Not enough permission!"), QMessageBox::Ok);
           }
 
          return true;
@@ -149,10 +151,9 @@ bool FileTable::redoData(const QModelIndex &index, const QVariant &value, int ro
              }
              emit dataChanged(index, index, {Qt::DisplayRole, Qt::EditRole});
          } else {
-            ErrorDialog dialog;
-            dialog.exec();
+             QMessageBox::warning(NULL, tr("Error"),
+                     tr("Not enough permission!"), QMessageBox::Ok);
          }
-
          return true;
      }
      return false;

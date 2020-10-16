@@ -12,13 +12,15 @@ void TableView::commitData(QWidget *editor) {
     auto currCol = this->currentIndex().column();
     auto currRow = this->currentIndex().row();
 
-    QModelIndexList selection = this->selectionModel()->selectedRows();
-
-    for(int i = 0; i < selection.count(); ++i) {
-        auto row = selection.at(i).row();
-        if (row != currRow) {
-            QModelIndex idx = model()->index(row, currCol);
-            this->model()->setData(idx, value, Qt::EditRole);
+    if (QFileInfo(model()->data(model()->index(this->currentIndex().row(), 4)).toString()).isWritable()) {
+        QModelIndexList selection = this->selectionModel()->selectedRows();
+        for(int i = 0; i < selection.count(); ++i) {
+            auto row = selection.at(i).row();
+            if (row != currRow) {
+                QModelIndex idx = model()->index(row, currCol);
+                if (QFileInfo(model()->data(model()->index(row, 4)).toString()).isWritable())
+                    this->model()->setData(idx, value, Qt::EditRole);
+            }
         }
     }
 }
