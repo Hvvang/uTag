@@ -4,21 +4,12 @@
 #include <QDialog>
 #include <QtCore>
 #include <QtGui>
+#include <QMessageBox>
 
-QT_BEGIN_NAMESPACE
-namespace Ui { class ErrorDialog; }
-QT_END_NAMESPACE
-
-
-class ErrorDialog : public QDialog {
+class ErrorDialog : public QMessageBox {
     Q_OBJECT
-
 public:
-    ErrorDialog(QWidget *parent = nullptr);
-    ~ErrorDialog();
-
-private:
-    Ui::ErrorDialog *ui;
+    ErrorDialog(const char *message, QWidget *parent = nullptr);
 };
 
 #endif // ERRORDIALOG_H

@@ -2,7 +2,8 @@
 #include "ui_Preferences.h"
 
 Preferences::Preferences(QWidget *parent)
-    : ui(new Ui::Preferences) {
+    : QDialog(parent)
+    , ui(new Ui::Preferences) {
     ui->setupUi(this);
     readSettings();
 }

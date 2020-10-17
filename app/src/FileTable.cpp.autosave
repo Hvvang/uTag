@@ -10,7 +10,7 @@ FileTable::FileTable(QUndoStack *undoStack, QString& sPath, QWidget *parent)
     : QAbstractTableModel(parent) {
     this->undoStack = undoStack;
     QDir *d = new QDir(sPath);
-    QFileInfoList sl = d->entryInfoList(QStringList() << "*.mp3" << "*.flac" << "*.waw" << "*.ogg" << "*.ape");
+    QFileInfoList sl = d->entryInfoList(QStringList() << "*.ape" << "*.flac" << "*.mp3" << "*.waw" << "*.ogg");
 
     for (const auto& it : sl) {
         files.push_back(FileInfo(it.filePath(), it.isReadable()));

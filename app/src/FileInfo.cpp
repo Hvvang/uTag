@@ -2,8 +2,8 @@
 #include "ImageFile.h"
 
 FileInfo::FileInfo(const QString& path, const bool &valid)
-    : filePath(path)
-    , valid(valid) {
+    : valid(valid)
+    , filePath(path) {
     if (valid) {
         file = TagLib::FileRef(path.toStdString().c_str());
     }

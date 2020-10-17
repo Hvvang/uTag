@@ -24,3 +24,4 @@ void TableView::commitData(QWidget *editor) {
         }
     }
 }
+

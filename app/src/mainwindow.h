@@ -11,7 +11,6 @@
 #include <QAction>
 #include <QMenuBar>
 #include <QUndoStack>
-#include <iostream>
 #include <QTableView>
 
 QT_BEGIN_NAMESPACE
@@ -35,6 +34,8 @@ private:
     void lyricsUpdate();
     void openPreferences();
 
+protected:
+    bool eventFilter(QObject *object, QEvent *event);
 
 private slots:
     void on_treeView_clicked(const QModelIndex &index);

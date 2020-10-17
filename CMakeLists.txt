@@ -8,3 +8,5 @@ set(CMAKE_CXX_STANDARD_REQUIRED YES)
 
 add_subdirectory(3dparty)
 add_subdirectory(app)
+
+set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "../../")

@@ -26,11 +26,49 @@
 #ifndef TAGLIB_H
 #define TAGLIB_H
 
-#include "taglib_config.h"
+// #include "taglib_config.h"
 
 #define TAGLIB_MAJOR_VERSION 1
 #define TAGLIB_MINOR_VERSION 11
 #define TAGLIB_PATCH_VERSION 1
+
+#if defined(HAVE_STD_ATOMIC)
+# include <atomic>
+# define ATOMIC_INT std::atomic<unsigned int>
+# define ATOMIC_INC(x) x.fetch_add(1)
+# define ATOMIC_DEC(x) (x.fetch_sub(1) - 1)
+#elif defined(HAVE_BOOST_ATOMIC)
+# include <boost/atomic.hpp>
+# define ATOMIC_INT boost::atomic<unsigned int>
+# define ATOMIC_INC(x) x.fetch_add(1)
+# define ATOMIC_DEC(x) (x.fetch_sub(1) - 1)
+#elif defined(HAVE_GCC_ATOMIC)
+# define ATOMIC_INT int
+# define ATOMIC_INC(x) __sync_add_and_fetch(&x, 1)
+# define ATOMIC_DEC(x) __sync_sub_and_fetch(&x, 1)
+#elif defined(HAVE_WIN_ATOMIC)
+# if !defined(NOMINMAX)
+#   define NOMINMAX
+# endif
+# include <windows.h>
+# define ATOMIC_INT long
+# define ATOMIC_INC(x) InterlockedIncrement(&x)
+# define ATOMIC_DEC(x) InterlockedDecrement(&x)
+#elif defined(HAVE_MAC_ATOMIC)
+# include <libkern/OSAtomic.h>
+# define ATOMIC_INT int32_t
+# define ATOMIC_INC(x) OSAtomicIncrement32Barrier(&x)
+# define ATOMIC_DEC(x) OSAtomicDecrement32Barrier(&x)
+#elif defined(HAVE_IA64_ATOMIC)
+# include <ia64intrin.h>
+# define ATOMIC_INT int
+# define ATOMIC_INC(x) __sync_add_and_fetch(&x, 1)
+# define ATOMIC_DEC(x) __sync_sub_and_fetch(&x, 1)
+#else
+# define ATOMIC_INT int
+# define ATOMIC_INC(x) (&(x + 1))
+# define ATOMIC_DEC(x) (--x)
+#endif
 
 #if defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 1)) || defined(__clang__)
 #define TAGLIB_IGNORE_MISSING_DESTRUCTOR _Pragma("GCC diagnostic ignored \"-Wnon-virtual-dtor\"")

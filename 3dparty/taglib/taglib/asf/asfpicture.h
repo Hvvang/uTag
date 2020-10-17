@@ -29,7 +29,7 @@
 #include "tstring.h"
 #include "tbytevector.h"
 #include "taglib_export.h"
-#include "attachedpictureframe.h"
+// #include "attachedpictureframe.h"
 
 namespace TagLib
 {

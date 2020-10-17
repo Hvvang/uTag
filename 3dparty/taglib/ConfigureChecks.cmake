@@ -77,7 +77,7 @@ if(NOT HAVE_STD_ATOMIC)
         int main() {
           volatile int32_t x;
           OSAtomicIncrement32Barrier(&x);
-          int32_t y = OSAtomicDecrement32Barrier(&x);
+          int32_t y = ATOMIC_DEC(&x);
           return 0;
         }
       " HAVE_MAC_ATOMIC)

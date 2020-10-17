@@ -23,6 +23,7 @@ MainWindow::MainWindow(QString sPath, QWidget *parent)
     , proxyModel(new QSortFilterProxyModel)
     , undoStack(new QUndoStack) {
     ui->setupUi(this);
+    ui->Lyrics->installEventFilter(this);
 
     setupDefaultSettings();
 
@@ -48,6 +49,7 @@ void MainWindow::on_treeView_clicked(const QModelIndex &index) {
 }
 
 void MainWindow::on_tableView_clicked(const QModelIndex &index) {
+    (void)index;
     auto selection = ui->tableView->selectionModel()->selectedRows();
     if (!selection.empty()) {
         QModelIndex fPath = ui->tableView->model()->index(selection.last().row(), 4, QModelIndex());
@@ -62,8 +64,7 @@ void MainWindow::on_tableView_clicked(const QModelIndex &index) {
             ui_coverImageUpdate(pix);
             return;
         } else {
-            QMessageBox::warning(this, tr("Error"),
-                    tr("Not enough permission!"), QMessageBox::Ok);
+            ErrorDialog dialog("Not enough permission!");
         }
     }
     ui->Lyrics->clear();
@@ -155,8 +156,7 @@ void MainWindow::openFile() {
             ui_tagsTableUpdate(dirName);
             ui_coverImageUpdate(pix);
         } else {
-            QMessageBox::warning(this, tr("Error"),
-                    tr("Not enough permission!"), QMessageBox::Ok);
+            ErrorDialog dialog("Not enough permission!");
         }
     }
 }
@@ -188,8 +188,7 @@ void MainWindow::on_coverImage_clicked() {
                 }
             }
         } else if (file.exists()) {
-            QMessageBox::warning(this, tr("Error"),
-                    tr("Not enough permission!"), QMessageBox::Ok);
+            ErrorDialog dialog("Not enough permission!");
         }
     }
 }
@@ -197,40 +196,60 @@ void MainWindow::on_coverImage_clicked() {
 void MainWindow::lyricsUpdate() {
      auto currRow = ui->tableView->currentIndex().row();
      if (currRow != -1) {
-         auto index = ui->tableView->model()->index(currRow, 4);
-         QString fPath = ui->tableView->model()->data(index).toString();
-         FileInfo *file = new FileInfo(fPath);
+         auto model = static_cast<FileTable *>(ui->tableView->model());
+         auto file = model->fileData(ui->tableView->currentIndex());
          QString prevValue = file->getLyrics();
          QString nextValue = ui->Lyrics->toPlainText();
 
+         qDebug() << prevValue << nextValue;
          file->setLyrics(nextValue);
          if (prevValue != nextValue)
             undoStack->push(new LyricsEdit(ui->Lyrics, ui->tableView, file, prevValue, nextValue));
      }
 }
 
+bool MainWindow::eventFilter(QObject *object, QEvent *event) {
+    if (object == ui->Lyrics) {
+        if (event->type() == QEvent::KeyPress) {
+            QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
+            if (keyEvent->key() == Qt::Key_Escape || keyEvent->key() == Qt::Key_Tab) {
+                lyricsUpdate();
+                ui->tableView->setFocus();
+                return true;
+            }
+        }
+
+        if (event->type() == QEvent::FocusOut) {
+            auto model = static_cast<FileTable *>(ui->tableView->model());
+            auto currIndex = ui->tableView->currentIndex();
+            auto file = model->fileData(currIndex);
+
+            ui->Lyrics->setPlainText(file->getLyrics());
+        }
+
+    }
+    return false;
+}
+
+
 void MainWindow::openPreferences() {
     Preferences *pref = new Preferences();
     if (pref->exec() == QDialog::Accepted) {
         QSettings *settings = new QSettings("Moose Soft", "Clipper");
         settings->beginGroup("MainWindow");
-        if (settings->value("showBrowser").toBool()) {
-            ui->treeView->show();
-        } else {
-            ui->treeView->hide();
-        }
-        if (settings->value("showCover").toBool()) {
-            ui->coverImage->show();
-        } else {
-            ui->coverImage->hide();
-        }
-        if (settings->value("showLyrics").toBool()) {
-            ui->Lyrics->show();
-            ui->lyr_label->show();
-        } else {
-            ui->Lyrics->hide();
-            ui->lyr_label->hide();
-        }
+
+        settings->value("showBrowser").toBool()
+            ? ui->treeView->show()
+            : ui->treeView->hide();
+        settings->value("showCover").toBool()
+            ? ui->coverImage->show()
+            : ui->coverImage->hide();
+        settings->value("showLyrics").toBool()
+            ? ui->Lyrics->show()
+            : ui->Lyrics->hide();
+        settings->value("showLyrics").toBool()
+            ? ui->lyr_label->show()
+            : ui->lyr_label->hide();
         settings->endGroup();
     }
 
