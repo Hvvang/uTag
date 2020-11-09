@@ -13,7 +13,7 @@
 The desktop application for editing tags of audio files
 
 ## Preview:
-![](preview)
+![](preview.png)
 
 ## Required software:
   - `git`;
